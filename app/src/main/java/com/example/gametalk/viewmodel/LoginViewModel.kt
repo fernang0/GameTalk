@@ -161,4 +161,14 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
+    fun onLogout() {
+        _loginState.update {
+            LoginUIState(
+                email = "",
+                password = "",
+                isLoading = false,
+                errorMessage = null
+            )
+        }
+    }
 }

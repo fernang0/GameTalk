@@ -2,15 +2,18 @@ package com.example.gametalk.navigation
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.*
 import com.example.gametalk.ui.screen.LoginScreen
 import com.example.gametalk.ui.screen.RegisterScreen
 import com.example.gametalk.ui.screen.HomeScreen
+import com.example.gametalk.viewmodel.LoginViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -25,6 +28,7 @@ fun AppNav() {
     val nav = rememberNavController()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val viewModel: LoginViewModel = viewModel()
 
     NavHost(navController = nav, startDestination = Routes.Login) {
 
@@ -63,6 +67,12 @@ fun AppNav() {
                 DrawerScaffold(
                     currentRoute = Routes.Home,
                     onNavigate = { nav.navigate(it) },
+                    onLogout = {
+                        viewModel.onLogout()
+                        nav.navigate(Routes.Login) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    },
                     drawerState = drawerState,
                     scope = scope
                 ) {
@@ -78,6 +88,7 @@ fun AppNav() {
 private fun DrawerScaffold(
     currentRoute: String,
     onNavigate: (String) -> Unit,
+    onLogout: () -> Unit,
     drawerState: DrawerState,
     scope: CoroutineScope,
     content: @Composable () -> Unit
@@ -109,6 +120,22 @@ private fun DrawerScaffold(
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                     )
                 }
+
+                Divider(modifier = Modifier.padding(vertical = 8.dp))
+
+                // item cerrar sesion
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.Default.ExitToApp, contentDescription = null) },
+                    label = { Text("Cerrar Sesión") },
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            onLogout()
+                        }
+                    },
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                )
             }
         }
     ) {
