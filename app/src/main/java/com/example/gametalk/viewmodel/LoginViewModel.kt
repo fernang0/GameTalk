@@ -1,17 +1,26 @@
 package com.example.gametalk.viewmodel
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.gametalk.model.data.config.AppDatabase
+import com.example.gametalk.model.data.repository.UserRepository
 import com.example.gametalk.model.domain.LoginUIState
 import com.example.gametalk.model.domain.RegisterUIState
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class LoginViewModel : ViewModel() {
+class LoginViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val userRepository: UserRepository
+
+    init {
+        val userDao = AppDatabase.getDatabase(application).userDao()
+        userRepository = UserRepository(userDao)
+    }
 
     // ═══════════════════════════════════════════════
     // LOGIN STATE
@@ -38,21 +47,19 @@ class LoginViewModel : ViewModel() {
             return
         }
 
-        // Simular login (aquí irían las llamadas a tu API/BD)
         _loginState.update { it.copy(isLoading = true, errorMessage = null) }
 
         viewModelScope.launch {
-            delay(1500) // Simular llamada de red
+            val result = userRepository.loginUser(state.email.trim(), state.password)
 
-            // Ejemplo: validación hardcodeada
-            if (state.email == "test@test.com" && state.password == "123456") {
+            result.onSuccess { user ->
                 _loginState.update { it.copy(isLoading = false) }
                 onSuccess()
-            } else {
+            }.onFailure { ex ->
                 _loginState.update {
                     it.copy(
                         isLoading = false,
-                        errorMessage = "Credenciales incorrectas"
+                        errorMessage = ex.message ?: "Error al iniciar sesión"
                     )
                 }
             }
@@ -124,23 +131,34 @@ class LoginViewModel : ViewModel() {
 
         if (state.hasErrors()) return
 
-        // Simular registro
         _registerState.update { it.copy(isLoading = true) }
 
         viewModelScope.launch {
-            delay(1500)
+            val result = userRepository.registerUser(
+                email = state.email.trim(),
+                password = state.password,
+                username = state.username.trim()
+            )
 
-            // Aquí guardarías en BD o llamarías a tu API
-            _registerState.update {
-                it.copy(
-                    isLoading = false,
-                    username = "",
-                    email = "",
-                    password = "",
-                    confirmPassword = ""
-                )
+            result.onSuccess { user ->
+                _registerState.update {
+                    it.copy(
+                        isLoading = false,
+                        username = "",
+                        email = "",
+                        password = "",
+                        confirmPassword = ""
+                    )
+                }
+                onSuccess()
+            }.onFailure { ex ->
+                _registerState.update {
+                    it.copy(
+                        isLoading = false,
+                        emailError = ex.message ?: "Error al registrarse"
+                    )
+                }
             }
-            onSuccess()
         }
     }
 }
