@@ -8,5 +8,9 @@ data class TopicUIState(
     val errorMessage: String? = null,
     val title: String = "",
     val description: String = "",
-    val showCreateDialog: Boolean = false
+    val showCreateDialog: Boolean = false,
+    // Para edición
+    val editTitle: String = "",
+    val editDescription: String = "",
+    val editSuccess: Boolean = false
 )

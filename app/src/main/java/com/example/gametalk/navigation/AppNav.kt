@@ -15,6 +15,7 @@ import com.example.gametalk.ui.screen.RegisterScreen
 import com.example.gametalk.ui.screen.HomeScreen
 import com.example.gametalk.ui.screen.CategoriesScreen
 import com.example.gametalk.ui.screen.TopicsScreen
+import com.example.gametalk.ui.screen.EditTopicScreen
 import com.example.gametalk.viewmodel.LoginViewModel
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
@@ -27,9 +28,14 @@ object Routes {
     const val Home = "home"
     const val Categories = "categories"
     const val Topics = "topics/{categoryId}/{categoryName}/{userId}"
+    const val EditTopic = "edit_topic/{topicId}/{userId}"
     
     fun topics(categoryId: Int, categoryName: String, userId: Int): String {
         return "topics/$categoryId/$categoryName/$userId"
+    }
+    
+    fun editTopic(topicId: Int, userId: Int): String {
+        return "edit_topic/$topicId/$userId"
     }
 }
 
@@ -133,6 +139,23 @@ fun AppNav() {
                     navController = nav,
                     categoryId = categoryId,
                     categoryName = categoryName,
+                    userId = userId
+                )
+            }
+
+            composable(
+                route = Routes.EditTopic,
+                arguments = listOf(
+                    navArgument("topicId") { type = NavType.IntType },
+                    navArgument("userId") { type = NavType.IntType }
+                )
+            ) { backStackEntry ->
+                val topicId = backStackEntry.arguments?.getInt("topicId") ?: 0
+                val userId = backStackEntry.arguments?.getInt("userId") ?: 1
+
+                EditTopicScreen(
+                    navController = nav,
+                    topicId = topicId,
                     userId = userId
                 )
             }

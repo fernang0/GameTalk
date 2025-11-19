@@ -110,4 +110,104 @@ class TopicViewModel(application: Application) : AndroidViewModel(application) {
     fun clearError() {
         _uiState.update { it.copy(errorMessage = null) }
     }
+
+    // Funciones para edición de temas
+    fun loadTopicForEdit(topicId: Int) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            try {
+                val topic = repository.getTopicById(topicId)
+                if (topic != null) {
+                    _uiState.update {
+                        it.copy(
+                            editTitle = topic.title,
+                            editDescription = topic.description,
+                            isLoading = false,
+                            editSuccess = false,
+                            errorMessage = null
+                        )
+                    }
+                } else {
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = "No se encontró el tema"
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        errorMessage = "Error al cargar el tema: ${e.message}"
+                    )
+                }
+            }
+        }
+    }
+
+    fun updateEditTitle(title: String) {
+        _uiState.update { it.copy(editTitle = title) }
+    }
+
+    fun updateEditDescription(description: String) {
+        _uiState.update { it.copy(editDescription = description) }
+    }
+
+    fun updateTopic(topicId: Int, userId: Int) {
+        viewModelScope.launch {
+            val currentState = _uiState.value
+            if (currentState.editTitle.isBlank()) {
+                _uiState.update { it.copy(errorMessage = "El título no puede estar vacío") }
+                return@launch
+            }
+            if (currentState.editDescription.isBlank()) {
+                _uiState.update { it.copy(errorMessage = "La descripción no puede estar vacía") }
+                return@launch
+            }
+
+            try {
+                val topic = repository.getTopicById(topicId)
+                if (topic != null) {
+                    val updatedTopic = topic.copy(
+                        title = currentState.editTitle,
+                        description = currentState.editDescription
+                    )
+                    repository.updateTopic(updatedTopic)
+                    _uiState.update {
+                        it.copy(
+                            editSuccess = true,
+                            errorMessage = null
+                        )
+                    }
+                } else {
+                    _uiState.update {
+                        it.copy(errorMessage = "No se encontró el tema")
+                    }
+                }
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(errorMessage = "Error al actualizar el tema: ${e.message}")
+                }
+            }
+        }
+    }
+
+    fun deleteTopic(topicId: Int) {
+        viewModelScope.launch {
+            try {
+                repository.deleteTopicById(topicId)
+                _uiState.update {
+                    it.copy(
+                        editSuccess = true,
+                        errorMessage = null
+                    )
+                }
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(errorMessage = "Error al eliminar el tema: ${e.message}")
+                }
+            }
+        }
+    }
 }

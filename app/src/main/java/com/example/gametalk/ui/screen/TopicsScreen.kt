@@ -109,7 +109,9 @@ fun TopicsScreen(
                             TopicCard(
                                 topic = topic,
                                 onClick = {
-                                    // Navegar al detalle del tema (HU-06)
+                                    navController.navigate(
+                                        com.example.gametalk.navigation.Routes.editTopic(topic.id, userId)
+                                    )
                                 }
                             )
                         }
