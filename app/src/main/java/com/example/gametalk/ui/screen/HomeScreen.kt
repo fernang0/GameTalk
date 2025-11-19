@@ -1,6 +1,8 @@
 package com.example.gametalk.ui.screen
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Category
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -8,7 +10,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    onNavigateToCategories: () -> Unit = {}
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -33,16 +37,30 @@ fun HomeScreen() {
                 )
 
                 Text(
-                    text = "Has iniciado sesión correctamente",
+                    text = "Tu foro gamer favorito",
                     style = MaterialTheme.typography.bodyLarge
                 )
 
                 Divider(modifier = Modifier.padding(vertical = 8.dp))
 
                 Text(
-                    text = "Aquí puedes comenzar a explorar la aplicación",
+                    text = "Explora las categorías y únete a las discusiones",
                     style = MaterialTheme.typography.bodyMedium
                 )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Button(
+                    onClick = onNavigateToCategories,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Category,
+                        contentDescription = null,
+                        modifier = Modifier.padding(end = 8.dp)
+                    )
+                    Text("Ver Categorías de Foros")
+                }
             }
         }
     }

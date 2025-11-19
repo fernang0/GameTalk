@@ -5,11 +5,14 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.gametalk.model.data.dao.UserDao
+import com.example.gametalk.model.data.dao.CategoryDao
 import com.example.gametalk.model.data.entities.User
+import com.example.gametalk.model.data.entities.Category
 
-@Database(entities = [User::class], version = 1, exportSchema = false)
+@Database(entities = [User::class, Category::class], version = 2, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
+    abstract fun categoryDao(): CategoryDao
 
     companion object {
         @Volatile
@@ -21,7 +24,9 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "gametalk_database"
-                ).build()
+                )
+                    .fallbackToDestructiveMigration()
+                    .build()
                 INSTANCE = instance
                 instance
             }

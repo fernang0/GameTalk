@@ -13,6 +13,7 @@ import androidx.navigation.compose.*
 import com.example.gametalk.ui.screen.LoginScreen
 import com.example.gametalk.ui.screen.RegisterScreen
 import com.example.gametalk.ui.screen.HomeScreen
+import com.example.gametalk.ui.screen.CategoriesScreen
 import com.example.gametalk.viewmodel.LoginViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -21,6 +22,7 @@ object Routes {
     const val Login = "login"
     const val Register = "register"
     const val Home = "home"
+    const val Categories = "categories"
 }
 
 @Composable
@@ -76,7 +78,33 @@ fun AppNav() {
                     drawerState = drawerState,
                     scope = scope
                 ) {
-                    HomeScreen()
+                    HomeScreen(
+                        onNavigateToCategories = {
+                            nav.navigate(Routes.Categories)
+                        }
+                    )
+                }
+            }
+
+            composable(Routes.Categories) {
+                DrawerScaffold(
+                    currentRoute = Routes.Categories,
+                    onNavigate = { nav.navigate(it) },
+                    onLogout = {
+                        viewModel.onLogout()
+                        nav.navigate(Routes.Login) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    },
+                    drawerState = drawerState,
+                    scope = scope
+                ) {
+                    CategoriesScreen(
+                        onCategoryClick = { category ->
+                            // Navegar a la pantalla de temas de la categoría
+                            // TODO: Implementar navegación a temas
+                        }
+                    )
                 }
             }
         }
@@ -95,6 +123,7 @@ private fun DrawerScaffold(
 ) {
     val destinations = listOf(
         DrawerItem("Home", Routes.Home),
+        DrawerItem("Categorías", Routes.Categories),
     )
 
     ModalNavigationDrawer(
@@ -163,5 +192,6 @@ private data class DrawerItem(val label: String, val route: String)
 @Composable
 private fun appBarTitle(route: String?): String = when (route) {
     Routes.Home -> "Home"
+    Routes.Categories -> "Categorías"
     else -> ""
 }
