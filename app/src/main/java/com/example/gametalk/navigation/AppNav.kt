@@ -14,7 +14,10 @@ import com.example.gametalk.ui.screen.LoginScreen
 import com.example.gametalk.ui.screen.RegisterScreen
 import com.example.gametalk.ui.screen.HomeScreen
 import com.example.gametalk.ui.screen.CategoriesScreen
+import com.example.gametalk.ui.screen.TopicsScreen
 import com.example.gametalk.viewmodel.LoginViewModel
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -23,6 +26,11 @@ object Routes {
     const val Register = "register"
     const val Home = "home"
     const val Categories = "categories"
+    const val Topics = "topics/{categoryId}/{categoryName}/{userId}"
+    
+    fun topics(categoryId: Int, categoryName: String, userId: Int): String {
+        return "topics/$categoryId/$categoryName/$userId"
+    }
 }
 
 @Composable
@@ -101,11 +109,32 @@ fun AppNav() {
                 ) {
                     CategoriesScreen(
                         onCategoryClick = { category ->
-                            // Navegar a la pantalla de temas de la categoría
-                            // TODO: Implementar navegación a temas
+                            // Obtener userId del viewModel o sesión (asumimos userId = 1 por ahora)
+                            val userId = 1
+                            nav.navigate(Routes.topics(category.id, category.name, userId))
                         }
                     )
                 }
+            }
+
+            composable(
+                route = Routes.Topics,
+                arguments = listOf(
+                    navArgument("categoryId") { type = NavType.IntType },
+                    navArgument("categoryName") { type = NavType.StringType },
+                    navArgument("userId") { type = NavType.IntType }
+                )
+            ) { backStackEntry ->
+                val categoryId = backStackEntry.arguments?.getInt("categoryId") ?: 0
+                val categoryName = backStackEntry.arguments?.getString("categoryName") ?: ""
+                val userId = backStackEntry.arguments?.getInt("userId") ?: 1
+
+                TopicsScreen(
+                    navController = nav,
+                    categoryId = categoryId,
+                    categoryName = categoryName,
+                    userId = userId
+                )
             }
         }
     }
